@@ -25,7 +25,7 @@ public class SimpleMutex implements Lock {
     }
 
     public boolean tryLock(long time, TimeUnit unit) throws InterruptedException{
-        return sync.tryAcquireSharedNanos(1, unit.toNanos(time));
+        return sync.tryAcquireNanos(1, unit.toNanos(time));
     }
 
     public void unlock(){
@@ -37,65 +37,56 @@ public class SimpleMutex implements Lock {
     }
 
     private static class Sync extends AbstractQueuedSynchronizer{
-        private static final ThreadLocal<Integer> mutexCounter = new ThreadLocal<>();
 
         @Override
         protected boolean tryAcquire(int arg){
             if (Thread.currentThread() == getExclusiveOwnerThread()){
-                increaseCounter();
-
+                setState(getState() + 1);
                 return true;
             }
 
             if (compareAndSetState(0, 1)){
                 setExclusiveOwnerThread(Thread.currentThread());
-                increaseCounter();
-
                 return true;
             }
 
             return false;
-
         }
 
         @Override
         protected boolean tryRelease(int arg){
-
+            int c = getState() - 1;
             if (Thread.currentThread() == getExclusiveOwnerThread()){
-                decreaseCounter();
-
-                if (mutexCounter.get() == 0){
+                if (c == 0){
                     setExclusiveOwnerThread(null);
                     setState(0);
+                    return true;
                 }
 
-                return true;
+                setState(c);
+                return false;
             }
 
-            return false;
+            throw new IllegalMonitorStateException();
 
         }
 
         private void increaseCounter(){
-            Integer i = mutexCounter.get();
-            if (i == null){
-                i = new Integer(0);
-            }
-
-            mutexCounter.set(i + 1);
+            int i = getState();
+            setState(i + 1);
         }
 
         private void decreaseCounter(){
-            Integer i = mutexCounter.get();
-            if (i == null){
-                i = new Integer(0);
-            }
-
-            mutexCounter.set(i - 1);
+            int i = getState();
+            setState(i - 1);
         }
 
         final ConditionObject newCondition() {
             return new ConditionObject();
+        }
+
+        protected final boolean isHeldExclusively() {
+            return getExclusiveOwnerThread() == Thread.currentThread();
         }
     }
 }
