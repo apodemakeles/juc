@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Caozheng on 2018/4/5.
@@ -69,16 +68,6 @@ public class SimpleMutex implements Lock {
 
             throw new IllegalMonitorStateException();
 
-        }
-
-        private void increaseCounter(){
-            int i = getState();
-            setState(i + 1);
-        }
-
-        private void decreaseCounter(){
-            int i = getState();
-            setState(i - 1);
         }
 
         final ConditionObject newCondition() {

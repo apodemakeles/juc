@@ -1,5 +1,6 @@
 package aqs;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -7,6 +8,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Application {
     public static void main(String[] args){
-        ReentrantLock reentrantLock = new ReentrantLock();
+
     }
 }
