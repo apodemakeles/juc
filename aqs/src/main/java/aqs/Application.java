@@ -1,8 +1,5 @@
 package aqs;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * Created by Caozheng on 2018/4/5.
  */
